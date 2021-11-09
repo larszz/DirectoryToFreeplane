@@ -1,0 +1,7 @@
+<setting>
+    <outputpath>C:\tmp</outputpath>
+    <exclude>
+        <path>C:\Documents\Studium</path>
+        <path>C:\Documents\Sicherungen</path>
+    </exclude>
+</setting>
