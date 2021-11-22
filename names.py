@@ -15,7 +15,8 @@ class Attributes:
 class SettingNames:
     class Elements:
         root = "setting"
-        outputpath = "outputpath"
+        outputfilepath = "outputfilepath"
+        inputdirpath = "inputdirpath"
         exclude = "exclude"
         path = "path"
         paths = "paths"

@@ -9,12 +9,13 @@ import os
 class Setting:
 
     def __init__(self):
-        self.output_path = Values.SettingValues.outputpath_default
+        self.output_file_path = Values.SettingValues.outputpath_default
+        self.input_directory_path = None
         self.excluded_paths = []
         self.excluded_filetypes = []
 
 
-    def parse_from_xml(self, path: str):
+    def parse_from_xml_config_file(self, path: str):
         if path is None:
             return
 
@@ -29,11 +30,23 @@ class Setting:
         setting_children = Helpers.ElementHelper.subelements_to_dict(settings_root)
 
         # search for specific settings
+        # input directory path (-> basepath)
+        input_dir_path_element = Helpers.ElementHelper.\
+            get_element_from_subelement_dict(setting_children, SettingNames.Elements.inputdirpath)
+        # if input directory is available and valid, it's used as a setting
+        if (input_dir_path_element is not None) \
+                & (input_dir_path_element.text is not None) \
+                & (input_dir_path_element.text != ''):
+            self.input_directory_path = str(input_dir_path_element.text).strip()
+        else:
+            # else current directory is used
+            self.input_directory_path = os.path.dirname(os.path.abspath(path))
+
         # output path
         output_path_element = Helpers.ElementHelper. \
-            get_element_from_subelement_dict(setting_children, SettingNames.Elements.outputpath)
+            get_element_from_subelement_dict(setting_children, SettingNames.Elements.outputfilepath)
         if output_path_element is not None:
-            self.output_path = output_path_element.text
+            self.output_file_path = output_path_element.text
 
         # exclude
         exclude_element = Helpers.ElementHelper. \
@@ -74,4 +87,4 @@ class Setting:
         return False
 
     def __str__(self):
-        return f"SETTING:: outputpath: {self.output_path}; excluded: {str(self.excluded_paths)}"
+        return f"SETTING:: outputpath: {self.output_file_path}; inputdirpath: {self.input_directory_path}; excluded: {str(self.excluded_paths)}"

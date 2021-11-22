@@ -30,7 +30,7 @@ def init_rec_print_children(element, maxiter):
 
 
 def rec_print_children(element, iter: int, maxiter: int):
-    if iter > maxiter:
+    if (maxiter < 0) & (iter > maxiter):
         return
 
     print("Element: " + str(element.tag))
@@ -119,15 +119,15 @@ def path_split_test():
 
 
 
-def write_paths_to_xml(xml_path: str, directory_path: str, file_paths: []):
-    root = etree.parse(xml_path).getroot()
+def write_paths_to_xml(setting: Setting, file_paths: []):
+    root = etree.parse(setting.output_file_path).getroot()
 
 
 
 """
 Get paths of all files under the given base path
 """
-def search_dirs_for_filepaths(setting: Setting, basepath: str):
+def get_filepaths_under_basepath(setting: Setting, basepath: str):
     dirpath = basepath
 
     file_paths = []
@@ -144,8 +144,9 @@ def search_dirs_for_filepaths(setting: Setting, basepath: str):
 if __name__ == '__main__':
     basepath = r"C:\Users\larsz\Projects\DirectoryToFreeplane\testdir\03 Datenbankprogrammierung Oracle"
 
-    setting = Setting().parse_from_xml(r"setting.example.xml")
-    paths = search_dirs_for_filepaths(setting, basepath)
+    setting = Setting().parse_from_xml_config_file(r"setting.example.xml")
+    print(str(setting))
+    paths = get_filepaths_under_basepath(setting, basepath)
 
     for p in paths:
         print("- " + p)

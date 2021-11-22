@@ -1,5 +1,6 @@
 <setting>
-    <outputpath>C:\tmp</outputpath>
+    <outputfilepath>C:\tmp</outputfilepath>
+    <inputdirpath></inputdirpath>
     <exclude>
         <path>C:\Documents\Studium</path>
         <path>C:\Documents\Sicherungen</path>
