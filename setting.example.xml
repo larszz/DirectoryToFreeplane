@@ -3,5 +3,7 @@
     <exclude>
         <path>C:\Documents\Studium</path>
         <path>C:\Documents\Sicherungen</path>
+        <path>\Programme\</path>
+        <filetype>.url</filetype>
     </exclude>
 </setting>

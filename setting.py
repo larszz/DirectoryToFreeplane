@@ -3,13 +3,16 @@ from lxml import etree
 from helpers import *
 from names import SettingNames
 from values import Values
+import os
 
 
 class Setting:
 
     def __init__(self):
         self.output_path = Values.SettingValues.outputpath_default
-        self.exclude = []
+        self.excluded_paths = []
+        self.excluded_filetypes = []
+
 
     def parse_from_xml(self, path: str):
         if path is None:
@@ -23,13 +26,12 @@ class Setting:
         if settings_root is None:
             return
 
-        print(settings_root.tag)
         setting_children = Helpers.ElementHelper.subelements_to_dict(settings_root)
-        # search for specific settings
 
+        # search for specific settings
         # output path
         output_path_element = Helpers.ElementHelper. \
-            get_element_from_subelement_dict(setting_children, SettingNames.Elements.output_path)
+            get_element_from_subelement_dict(setting_children, SettingNames.Elements.outputpath)
         if output_path_element is not None:
             self.output_path = output_path_element.text
 
@@ -39,12 +41,33 @@ class Setting:
         if (exclude_element is not None):
             # add paths from InnerText, seperated by a static set seperator
             if (exclude_element.text is not None) & (str(exclude_element.text).strip() != ''):
-                self.exclude += [x.strip() for x in str(exclude_element.text). \
+                self.excluded_paths += [x.strip() for x in str(exclude_element.text). \
                     split(Values.SettingValues.element_seperator)]
+                for x in str(exclude_element.text).split(Values.SettingValues.element_seperator):
+                    # is filetype (let's see if this works...)
+                    x_stripped = x.strip()
+                    if (x_stripped.startswith('.')) & (os.sep not in x_stripped):
+                        self.excluded_filetypes.append(x_stripped)
+                    else:
+                        self.excluded_paths.append(x_stripped)
 
-            # add all found path subelements
-            for c_path in exclude_element:
-                if c_path.tag == SettingNames.Elements.path:
-                    self.exclude.append(str(c_path.text).strip())
+            # add all found path sub elements
+            for exc_element in exclude_element:
+                if exc_element.tag == SettingNames.Elements.path:
+                    self.excluded_paths.append(str(exc_element.text).strip())
+                if exc_element.tag == SettingNames.Elements.filetypes:
+                    self.excluded_filetypes.append(str(exc_element.text).strip())
 
-        print(str(self))
+        return self
+
+    """
+    Returns if the path is excluded in setting
+    """
+    def check_path_excluded(self, path: str):
+        for e in self.excluded_paths:
+            if e in path:
+                return True
+        return False
+
+    def __str__(self):
+        return f"SETTING:: outputpath: {self.output_path}; excluded: {str(self.excluded_paths)}"

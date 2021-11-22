@@ -49,9 +49,9 @@ def rec_print_children(element, iter: int, maxiter: int):
 # ----------------------------------------------------------
 # ----------------------------------------------------------
 
-def rec_walk_path(element, path: []):
+def rec_add_dirs_from_path_and_get_element(element, path: []):
     if (path is None) | len(path) == 0:
-        return
+        return element
 
     cur = str(path[0])
 
@@ -65,7 +65,7 @@ def rec_walk_path(element, path: []):
 
     # walk to next level
     path.pop(0)
-    rec_walk_path(element[current_folder_xml_index], path)
+    return rec_add_dirs_from_path_and_get_element(element[current_folder_xml_index], path)
 
 
 def xml_test():
@@ -83,7 +83,7 @@ def xml_test():
 
     print(str(root.tag))
     print(str(root.keys()))
-    rec_walk_path(root, dirlist)
+    rec_add_dirs_from_path_and_get_element(root, dirlist)
 
     result_xml = str(etree.tostring(root, encoding='unicode', pretty_print=True))
     with open(r"TestFiles/MindMap01_result.mm", "w") as h:
@@ -116,15 +116,6 @@ def path_split_test():
 
     print(to_work)
 
-"""
-Returns if the path is excluded in global list
-"""
-def check_path_excluded(path: str):
-    for e in dirs_to_exclude:
-        if path.startswith(e):
-            return True
-    return False
-
 
 
 
@@ -133,11 +124,10 @@ def write_paths_to_xml(xml_path: str, directory_path: str, file_paths: []):
 
 
 
-
-
-
-
-def search_dirs_for_filepaths(basepath: str):
+"""
+Get paths of all files under the given base path
+"""
+def search_dirs_for_filepaths(setting: Setting, basepath: str):
     dirpath = basepath
 
     file_paths = []
@@ -145,7 +135,7 @@ def search_dirs_for_filepaths(basepath: str):
         for fn in filenames:
             short_path = str(dirpath.removeprefix(basepath))
             file_path = os.path.join(short_path, fn)
-            if check_path_excluded(file_path):
+            if setting.check_path_excluded(file_path):
                 continue
             file_paths.append(file_path)
     return file_paths
@@ -153,7 +143,9 @@ def search_dirs_for_filepaths(basepath: str):
 
 if __name__ == '__main__':
     basepath = r"C:\Users\larsz\Projects\DirectoryToFreeplane\testdir\03 Datenbankprogrammierung Oracle"
-    paths = search_dirs_for_filepaths(basepath)
+
+    setting = Setting().parse_from_xml(r"setting.example.xml")
+    paths = search_dirs_for_filepaths(setting, basepath)
 
     for p in paths:
         print("- " + p)
