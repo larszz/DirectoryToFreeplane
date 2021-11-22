@@ -19,4 +19,4 @@ class SettingNames:
         exclude = "exclude"
         path = "path"
         paths = "paths"
-        filetypes = "filetypes"
+        filetype = "filetype"

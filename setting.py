@@ -55,7 +55,7 @@ class Setting:
             for exc_element in exclude_element:
                 if exc_element.tag == SettingNames.Elements.path:
                     self.excluded_paths.append(str(exc_element.text).strip())
-                if exc_element.tag == SettingNames.Elements.filetypes:
+                if exc_element.tag == SettingNames.Elements.filetype:
                     self.excluded_filetypes.append(str(exc_element.text).strip())
 
         return self
@@ -64,8 +64,12 @@ class Setting:
     Returns if the path is excluded in setting
     """
     def check_path_excluded(self, path: str):
-        for e in self.excluded_paths:
-            if e in path:
+        for ft in self.excluded_filetypes:
+            if path.endswith(ft):
+                return True
+
+        for exc_path in self.excluded_paths:
+            if exc_path in path:
                 return True
         return False
 

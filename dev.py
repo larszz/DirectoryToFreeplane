@@ -150,4 +150,5 @@ if __name__ == '__main__':
     for p in paths:
         print("- " + p)
 
-    setting = Setting().parse_from_xml(r"setting.example.xml")
+    list_cut = paths[:1]
+    print(list_cut)
