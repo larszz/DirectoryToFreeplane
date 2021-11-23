@@ -1,4 +1,6 @@
 import os
+import sys
+import argparse
 
 import lxml.etree
 from lxml import etree
@@ -142,14 +144,24 @@ def get_filepaths_under_basepath(setting: Setting, basepath: str):
 
 
 if __name__ == '__main__':
+    # parse arguments
+    arg_parser = argparse.ArgumentParser(description='Generate a MindMap as an overview for the contents of a folder')
+    arg_parser.add_argument('-s', '--settingspath', help='Path to settings file', default='.', )
+    arg_parser.add_argument('-i', '--interactive', help='Allows interactive execution (TO IMPLEMENT)', action='store_true')
+    arg_parser.print_help()
+    arguments = arg_parser.parse_args()
+
+
+    print(arguments.settingspath)
+
     basepath = r"C:\Users\larsz\Projects\DirectoryToFreeplane\testdir\03 Datenbankprogrammierung Oracle"
 
     setting = Setting().parse_from_xml_config_file(r"setting.example.xml")
     print(str(setting))
     paths = get_filepaths_under_basepath(setting, basepath)
 
-    for p in paths:
-        print("- " + p)
+    # for p in paths:
+    #     print("- " + p)
 
     list_cut = paths[:1]
     print(list_cut)
