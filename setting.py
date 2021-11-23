@@ -76,7 +76,7 @@ class Setting:
     """
     Returns if the path is excluded in setting
     """
-    def check_path_excluded(self, path: str):
+    def check_filepath_excluded(self, path: str):
         for ft in self.excluded_filetypes:
             if path.endswith(ft):
                 return True
@@ -86,5 +86,17 @@ class Setting:
                 return True
         return False
 
+    """
+    Checks whether the set paths are pointing to valid locations
+    """
+    def check_setting_paths_valid(self) -> bool:
+        if not Helpers.OsHelper.file_exist(self.output_file_path):
+            return False
+        if not Helpers.OsHelper.directory_exist(self.input_directory_path):
+            return False
+        return True
+
+
+
     def __str__(self):
-        return f"SETTING:: outputpath: {self.output_file_path}; inputdirpath: {self.input_directory_path}; excluded: {str(self.excluded_paths)}"
+        return f"SETTING: \n\toutputpath: {self.output_file_path}\n\tinputdirpath: {self.input_directory_path}\n\texcluded paths: {str(self.excluded_paths)}\n\texcluded filetypes: {str(self.excluded_filetypes)}\n========"

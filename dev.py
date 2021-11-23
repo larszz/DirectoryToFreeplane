@@ -118,26 +118,35 @@ def path_split_test():
 
     print(to_work)
 
+"""
+Returns the path as a list of directories
+"""
+def get_path_as_directory_list(path: str) -> list:
+    if (path is None) | (len(path) <= 0):
+        return []
+    return os.path.normpath(path).split(os.sep)
 
 
-
+"""
+Writes all passed paths to the output XML
+"""
 def write_paths_to_xml(setting: Setting, file_paths: []):
     root = etree.parse(setting.output_file_path).getroot()
 
 
 
 """
-Get paths of all files under the given base path
+Get valid paths of all files under the given base path
 """
-def get_filepaths_under_basepath(setting: Setting, basepath: str):
-    dirpath = basepath
+def get_valid_filepaths_under_basepath(setting: Setting):
+    dirpath = setting.input_directory_path
 
     file_paths = []
     for (dirpath, dirnames, filenames) in os.walk(dirpath):
         for fn in filenames:
-            short_path = str(dirpath.removeprefix(basepath))
+            short_path = str(dirpath.removeprefix(setting.input_directory_path))
             file_path = os.path.join(short_path, fn)
-            if setting.check_path_excluded(file_path):
+            if setting.check_filepath_excluded(file_path):
                 continue
             file_paths.append(file_path)
     return file_paths
@@ -145,23 +154,34 @@ def get_filepaths_under_basepath(setting: Setting, basepath: str):
 
 if __name__ == '__main__':
     # parse arguments
+    """
+    HELP:
+    https://docs.python.org/3/library/argparse.html#usage
+    https://realpython.com/command-line-interfaces-python-argparse/
+    """
     arg_parser = argparse.ArgumentParser(description='Generate a MindMap as an overview for the contents of a folder')
     arg_parser.add_argument('-s', '--settingspath', help='Path to settings file', default='.', )
+    arg_parser.add_argument('-o', '--outputpath', help='Output path for the mindmap file to use', default='.', )
     arg_parser.add_argument('-i', '--interactive', help='Allows interactive execution (TO IMPLEMENT)', action='store_true')
     arg_parser.print_help()
     arguments = arg_parser.parse_args()
 
 
-    print(arguments.settingspath)
+    # settings path
+    settings_path = arguments.settingspath
 
-    basepath = r"C:\Users\larsz\Projects\DirectoryToFreeplane\testdir\03 Datenbankprogrammierung Oracle"
-
-    setting = Setting().parse_from_xml_config_file(r"setting.example.xml")
+    setting = Setting().parse_from_xml_config_file(settings_path)
+    if not setting.check_setting_paths_valid():
+        print(f"Setting paths not valid!")
+        exit(1)
     print(str(setting))
-    paths = get_filepaths_under_basepath(setting, basepath)
+    print()
 
-    # for p in paths:
-    #     print("- " + p)
+    # get files to
+    paths = get_valid_filepaths_under_basepath(setting)
+
+    for p in paths:
+        print("- " + p)
 
     list_cut = paths[:1]
     print(list_cut)

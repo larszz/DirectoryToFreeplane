@@ -1,3 +1,5 @@
+import os
+
 from lxml import etree
 
 
@@ -76,3 +78,16 @@ class Helpers:
 
             # not found
             return -1
+
+    class OsHelper:
+        @staticmethod
+        def file_exist(filepath: str) -> bool:
+            if filepath is None:
+                return False
+            return os.path.isfile(filepath)
+
+        @staticmethod
+        def directory_exist(dirpath: str) -> bool:
+            if dirpath is None:
+                return False
+            return os.path.isdir(dirpath)
