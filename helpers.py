@@ -1,14 +1,50 @@
 import os
 
+import lxml
 from lxml import etree
 
 
 class Helpers:
+
     class ElementHelper:
+
+        @staticmethod
+        def get_root_element_from_file_path(filepath: str):
+            if filepath is None:
+                return None
+            if len(filepath) <= 0:
+                return None
+            if not os.path.isfile(filepath):
+                return None
+            parsed = None
+            try:
+                parsed = etree.parse(filepath)
+            except lxml.etree.XMLSyntaxError:
+                return None
+            return parsed.getroot()
+
+        ### Returns the first subelement with the given tag
+        @staticmethod
+        def get_first_subelement_with_tag(element: etree._Element, tag: str) -> etree._Element:
+            if element is None:
+                return None
+            if tag is None:
+                return None
+            for c in element:
+                if c.tag == tag:
+                    return c
+            return None
+
+
         @staticmethod
         def subelements_to_dict(element: etree._Element) -> dict:
+            if element is None:
+                return {}
             ret = {}
             for c in element:
+                if c.tag in ret:
+                    print(f"Key '{c.tag}' already in dict, but needs to be unique!")
+                    return {}
                 ret[c.tag] = c
             return ret
 

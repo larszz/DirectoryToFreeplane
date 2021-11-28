@@ -1,5 +1,5 @@
 <setting>
-    <outputfilepath>C:\Users\larsz\Projects\DirectoryToFreeplane\TestFiles\MindMap01_result.mm</outputfilepath>
+    <outputfilepath>C:\Users\larsz\Projects\DirectoryToFreeplane\TestFiles\MindMap01.mm</outputfilepath>
     <inputdirpath>C:\Users\larsz\Projects\DirectoryToFreeplane\testdir\03 Datenbankprogrammierung Oracle</inputdirpath>
     <exclude>
         <path>C:\Documents\Studium</path>

@@ -11,8 +11,8 @@ from helpers import Helpers
 from names import Attributes
 from setting import Setting
 
-"""
-Tutorial: https:\\lxml.de\tutorial.html
+r"""
+Tutorial: https://lxml.de/tutorial.html
 """
 
 
@@ -26,48 +26,6 @@ class Directory:
         self.dirs = []  # list[Directory]
         self.files = []  # list[str]
 
-
-def init_rec_print_children(element, maxiter):
-    rec_print_children(element, 0, maxiter)
-
-
-def rec_print_children(element, iter: int, maxiter: int):
-    if (maxiter < 0) & (iter > maxiter):
-        return
-
-    print("Element: " + str(element.tag))
-
-    for child in element:
-        if Attributes.text in child.attrib:
-            text = child.attrib[Attributes.text]
-        else:
-            text = None
-
-        print("* " * iter + "%s (%s)" % (child.tag, text))
-        # print("* " * iter + "%s " % (element.keys()))
-        rec_print_children(child, iter + 1, maxiter)
-
-
-# ----------------------------------------------------------
-# ----------------------------------------------------------
-
-def rec_add_dirs_from_path_and_get_element(element, path: []):
-    if (path is None) | len(path) == 0:
-        return element
-
-    cur = str(path[0])
-
-    current_folder_xml_index = Helpers.ElementHelper.get_index_of_element_attribute_with_value(element,
-                                                                                               names.Attributes.text,
-                                                                                               cur)
-
-    # if current checked folder does not exist as an element, add the element
-    if current_folder_xml_index < 0:
-        element.append(etree.Element(names.Elements.node, attrib={Attributes.text: cur}))
-
-    # walk to next level
-    path.pop(0)
-    return rec_add_dirs_from_path_and_get_element(element[current_folder_xml_index], path)
 
 
 def xml_test():
@@ -118,6 +76,56 @@ def path_split_test():
 
     print(to_work)
 
+
+
+def init_rec_print_children(element, maxiter):
+    rec_print_children(element, 0, maxiter)
+
+
+def rec_print_children(element, iter: int, maxiter: int):
+    if (maxiter < 0) & (iter > maxiter):
+        return
+
+    print("Element: " + str(element.tag))
+
+    for child in element:
+        if Attributes.text in child.attrib:
+            text = child.attrib[Attributes.text]
+        else:
+            text = None
+
+        print("* " * iter + "%s (%s)" % (child.tag, text))
+        # print("* " * iter + "%s " % (element.keys()))
+        rec_print_children(child, iter + 1, maxiter)
+
+
+
+# ----------------------------------------------------------
+# ----------------------------------------------------------
+
+
+def rec_add_dirs_from_path_and_get_element(element, path: []):
+    if (path is None) | len(path) == 0:
+        return element
+
+    cur = str(path[0])
+
+    current_folder_xml_index = Helpers.ElementHelper.get_index_of_element_attribute_with_value(element,
+                                                                                               names.Attributes.text,
+                                                                                               cur)
+
+    # if current checked folder does not exist as an element, add the element
+    if current_folder_xml_index < 0:
+        element.append(etree.Element(names.Elements.node, attrib={Attributes.text: cur}))
+        current_folder_xml_index = Helpers.ElementHelper.get_index_of_element_attribute_with_value(element,
+                                                                                                   names.Attributes.text,
+                                                                                                   cur)
+
+    # walk to next level
+    path.pop(0)
+    return rec_add_dirs_from_path_and_get_element(element[current_folder_xml_index], path)
+
+
 """
 Returns the path as a list of directories
 """
@@ -127,11 +135,45 @@ def get_path_as_directory_list(path: str) -> list:
     return os.path.normpath(path).split(os.sep)
 
 
+def write_string_to_file(filepath: str, output: str):
+    if filepath is None:
+        return False
+    if output is None:
+        return False
+    with open(filepath, 'wb') as f:
+        f.write(output)
+
+
 """
 Writes all passed paths to the output XML
 """
 def write_paths_to_xml(setting: Setting, file_paths: []):
-    root = etree.parse(setting.output_file_path).getroot()
+    # param check
+    if setting is None:
+        return
+    if file_paths is None:
+        return
+    if len(file_paths) <= 0:
+        return
+
+    # logic
+    root = Helpers.ElementHelper.get_root_element_from_file_path(setting.output_file_path)
+    if root is None:
+        print(f"ERROR: Root element not found!")
+        return
+
+    base_node = Helpers.ElementHelper.get_first_subelement_with_tag(root, names.Elements.node)
+
+    # TODO: change after tests
+    setting.output_file_path = r"C:\Users\larsz\Projects\DirectoryToFreeplane\TestFiles\MindMap01_result.mm"
+
+    for p in file_paths:
+        file_path_as_list = get_path_as_directory_list(p)
+
+        rec_add_dirs_from_path_and_get_element(base_node, file_path_as_list)
+    etree.indent(base_node)
+    output = etree.tostring(base_node, pretty_print=True)
+    write_string_to_file(setting.output_file_path, output)
 
 
 
@@ -148,6 +190,7 @@ def get_valid_filepaths_under_basepath(setting: Setting):
             file_path = os.path.join(short_path, fn)
             if setting.check_filepath_excluded(file_path):
                 continue
+            file_path = file_path.lstrip(os.path.sep)
             file_paths.append(file_path)
     return file_paths
 
@@ -174,7 +217,6 @@ if __name__ == '__main__':
     if not setting.check_setting_paths_valid():
         print(f"Setting paths not valid!")
         exit(1)
-    print(str(setting))
     print()
 
     # get files to
@@ -183,5 +225,8 @@ if __name__ == '__main__':
     for p in paths:
         print("- " + p)
 
-    list_cut = paths[:1]
+    list_cut = paths
     print(list_cut)
+
+
+    write_paths_to_xml(setting, list_cut)
