@@ -1,10 +1,19 @@
 import os
 
-import lxml
+# import lxml
 from lxml import etree
+import time
+
+import names
+import values
 
 
 class Helpers:
+    class TimeHelper:
+        @staticmethod
+        def get_current_unix_time_in_ms():
+            utime = int(round(time.time() * 1000))
+            return utime
 
     class ElementHelper:
 
@@ -19,7 +28,7 @@ class Helpers:
             parsed = None
             try:
                 parsed = etree.parse(filepath)
-            except lxml.etree.XMLSyntaxError:
+            except etree.XMLSyntaxError:
                 return None
             return parsed.getroot()
 
@@ -114,6 +123,27 @@ class Helpers:
 
             # not found
             return -1
+
+
+        @staticmethod
+        def add_attribute_to_element(element: etree._Element, attribute_tag: str, value: str):
+            if element is None:
+                return element
+            if attribute_tag is None:
+                return element
+            if value is None:
+                return element
+            if attribute_tag not in element.attrib.keys():
+                element.attrib[attribute_tag] = value
+            return element
+
+    class MindmapHelper:
+        @staticmethod
+        def add_necessary_attributes_to_node(element: etree._Element):
+            Helpers.ElementHelper.add_attribute_to_element(element, names.Attributes.position, values.Values.MindmapValues.node_position_default)
+            Helpers.ElementHelper.add_attribute_to_element(element, names.Attributes.created, str(Helpers.TimeHelper.get_current_unix_time_in_ms()))
+            Helpers.ElementHelper.add_attribute_to_element(element, names.Attributes.modified, str(Helpers.TimeHelper.get_current_unix_time_in_ms()))
+
 
     class OsHelper:
         @staticmethod

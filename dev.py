@@ -1,12 +1,14 @@
 import os
 import sys
 import argparse
+import time
 
 import lxml.etree
 from lxml import etree
 from io import StringIO
 
 import names
+import values
 from helpers import Helpers
 from names import Attributes
 from setting import Setting
@@ -144,6 +146,14 @@ def write_string_to_file(filepath: str, output: str):
         f.write(output)
 
 
+def write_mindmap_file_to_path(filepath: str, output: str):
+    if filepath is None:
+        return False
+    if output is None:
+        return False
+    output = values.Values.MindmapValues.file_prefix + output + values.Values.MindmapValues.file_suffix
+    write_string_to_file(filepath, output)
+
 """
 Writes all passed paths to the output XML
 """
@@ -169,11 +179,13 @@ def write_paths_to_xml(setting: Setting, file_paths: []):
 
     for p in file_paths:
         file_path_as_list = get_path_as_directory_list(p)
+        element = rec_add_dirs_from_path_and_get_element(base_node, file_path_as_list)
+        Helpers.MindmapHelper.add_necessary_attributes_to_node(element)
 
-        rec_add_dirs_from_path_and_get_element(base_node, file_path_as_list)
+
     etree.indent(base_node)
     output = etree.tostring(base_node, pretty_print=True)
-    write_string_to_file(setting.output_file_path, output)
+    write_mindmap_file_to_path(setting.output_file_path, output)
 
 
 
@@ -221,12 +233,4 @@ if __name__ == '__main__':
 
     # get files to
     paths = get_valid_filepaths_under_basepath(setting)
-
-    for p in paths:
-        print("- " + p)
-
-    list_cut = paths
-    print(list_cut)
-
-
-    write_paths_to_xml(setting, list_cut)
+    write_paths_to_xml(setting, paths)
