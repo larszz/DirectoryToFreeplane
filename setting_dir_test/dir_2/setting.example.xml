@@ -1,11 +1,8 @@
 <setting>
-    <outputfilepath>C:\Users\larsz\Projects\DirectoryToFreeplane\TestFiles\MindMap01.mm</outputfilepath>
-    <inputdirpath>C:\Users\larsz\Projects\DirectoryToFreeplane\testdir\03 Datenbankprogrammierung Oracle</inputdirpath>
+    <outputfilepath></outputfilepath>
+    <inputdirpath></inputdirpath>
     <exclude>
-        <path>C:\Documents\Studium</path>
-        <path>C:\Documents\Sicherungen</path>
-        <path>\Programme\</path>
-        <filetype>.url</filetype>
-        <filetype>.md</filetype>
+        <path></path>
+        <filetype></filetype>
     </exclude>
 </setting>

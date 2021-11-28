@@ -223,11 +223,11 @@ if __name__ == '__main__':
 
 
     # settings path
-    settings_path = arguments.settingspath
+    settings_path = arguments.settingspath.strip("'")
 
     setting = Setting().parse_from_xml_config_file(settings_path)
-    if not setting.check_setting_paths_valid():
-        print(f"Setting paths not valid!")
+    if not setting.check_setting_path_valid():
+        print(f"Setting path not valid!")
         exit(1)
     print()
 

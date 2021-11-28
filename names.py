@@ -10,6 +10,7 @@ class Attributes:
     created = "CREATED"
     modified = "MODIFIED"
     color = "COLOR"
+    folded = "FOLDED"
 
 
 class SettingNames:

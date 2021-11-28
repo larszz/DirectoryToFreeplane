@@ -1,6 +1,6 @@
 from lxml import etree
 
-from helpers import *
+from helpers import Helpers
 from names import SettingNames
 from values import Values
 import os
@@ -37,7 +37,7 @@ class Setting:
         if (input_dir_path_element is not None) \
                 & (input_dir_path_element.text is not None) \
                 & (input_dir_path_element.text != ''):
-            self.input_directory_path = str(input_dir_path_element.text).strip()
+            self.input_directory_path = str(Helpers.StringHelper.remove_quotes_from_string(input_dir_path_element.text).strip())
         else:
             # else current directory is used
             self.input_directory_path = os.path.dirname(os.path.abspath(path))
@@ -46,7 +46,7 @@ class Setting:
         output_path_element = Helpers.ElementHelper. \
             get_element_from_subelement_dict(setting_children, SettingNames.Elements.outputfilepath)
         if output_path_element is not None:
-            self.output_file_path = output_path_element.text
+            self.output_file_path = Helpers.StringHelper.remove_quotes_from_string(output_path_element.text)
 
         # exclude
         exclude_element = Helpers.ElementHelper. \
@@ -60,9 +60,9 @@ class Setting:
                     # is filetype (let's see if this works...)
                     x_stripped = x.strip()
                     if (x_stripped.startswith('.')) & (os.sep not in x_stripped):
-                        self.excluded_filetypes.append(x_stripped)
+                        self.excluded_filetypes.append(Helpers.StringHelper.remove_quotes_from_string(x_stripped))
                     else:
-                        self.excluded_paths.append(x_stripped)
+                        self.excluded_paths.append(Helpers.StringHelper.remove_quotes_from_string(x_stripped))
 
             # add all found path sub elements
             for exc_element in exclude_element:
@@ -89,12 +89,10 @@ class Setting:
     """
     Checks whether the set paths are pointing to valid locations
     """
-    def check_setting_paths_valid(self) -> bool:
-        if not Helpers.OsHelper.file_exist(self.output_file_path):
-            return False
-        if not Helpers.OsHelper.directory_exist(self.input_directory_path):
-            return False
-        return True
+    def check_setting_path_valid(self) -> bool:
+        if Helpers.OsHelper.file_exist(self.output_file_path):
+            return True
+        return False
 
 
 
