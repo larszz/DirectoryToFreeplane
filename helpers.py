@@ -9,6 +9,13 @@ import values
 
 
 class Helpers:
+    class StringHelper:
+        @staticmethod
+        def remove_quotes_from_string(text: str) -> str:
+            text = text.lstrip("'").rstrip("'")
+            text = text.lstrip('"').rstrip('"')
+            return text
+
     class TimeHelper:
         @staticmethod
         def get_current_unix_time_in_ms():
