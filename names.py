@@ -22,3 +22,14 @@ class SettingNames:
         path = "path"
         paths = "paths"
         filetype = "filetype"
+        subnodestoadd = "subnodestoadd"
+        subnodepackage = "subnodepackage"
+        text = "text"
+        filter = "filter"
+        prefix = "prefix"
+        suffix = "suffix"
+        contains = "contains"
+        excludepath = "excludepath"
+
+    class Attributes:
+        negate = "negate"

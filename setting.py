@@ -1,8 +1,10 @@
 from lxml import etree
 
+from filter import Filter
 from helpers import ElementHelper, StringHelper, OsHelper
 from names import SettingNames
 from values import Values
+from subnodesetting import SubnodeSetting
 import os
 
 
@@ -13,6 +15,24 @@ class Setting:
         self.input_directory_path = None
         self.excluded_paths = []
         self.excluded_filetypes = []
+
+
+    def get_subnode_settings_from_setting_node(self, element) -> []:
+        if element is None:
+            return []
+
+        # get subnodestoadd
+        subnodes_to_add = ElementHelper.get_first_subelement_with_tag(element, SettingNames.Elements.subnodestoadd)
+        if subnodes_to_add is None:
+            return []
+
+        subnode_settings = []
+        subnodepackage_list = ElementHelper.get_all_subelements_with_tag(subnodes_to_add, SettingNames.Elements.subnodepackage)
+        for snp in subnodepackage_list:
+            sn_setting = self.get_subnode_setting_from_subnode_package(snp)
+            if sn_setting is not None:
+                subnode_settings.append(sn_setting)
+
 
 
     def parse_from_xml_config_file(self, path: str):
@@ -70,6 +90,9 @@ class Setting:
                     self.excluded_paths.append(str(exc_element.text).strip())
                 if exc_element.tag == SettingNames.Elements.filetype:
                     self.excluded_filetypes.append(str(exc_element.text).strip())
+
+        subnode_setting_node = ElementHelper.get_first_subelement_with_tag(settings_root, SettingNames.Elements.subnodestoadd)
+        subnode_setting_list = SubnodeSetting.get_multiple_subnode_settings_from_subnodestoadd(subnode_setting_node)
 
         return self
 

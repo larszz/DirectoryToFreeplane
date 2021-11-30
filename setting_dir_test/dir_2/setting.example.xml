@@ -5,4 +5,16 @@
         <path></path>
         <filetype></filetype>
     </exclude>
+    <subnodestoadd>
+        <subnodepackage>
+            <text></text>
+            <text></text>
+            <filter>
+                <prefix negate="True"></prefix>
+                <suffix negate="False"></suffix>
+                <contains></contains>
+                <excludepath></excludepath>
+            </filter>
+        </subnodepackage>
+    </subnodestoadd>
 </setting>

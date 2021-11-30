@@ -8,6 +8,16 @@ from names import Elements, Attributes
 import values
 
 
+class BoolHelper:
+    _true_values = ["true", "1"]
+    _false_values = ["false", "0"]
+    @staticmethod
+    def parse_bool_from_text(text: str) -> bool:
+        if text is None:
+            return False
+        if text.lower() in BoolHelper._true_values:
+            return True
+        return False
 
 class StringHelper:
     @staticmethod
@@ -16,11 +26,13 @@ class StringHelper:
         text = text.lstrip('"').rstrip('"')
         return text
 
+
 class TimeHelper:
     @staticmethod
     def get_current_unix_time_in_ms():
         utime = int(round(time.time() * 1000))
         return utime
+
 
 class ElementHelper:
 
@@ -51,6 +63,19 @@ class ElementHelper:
                 return c
         return None
 
+    @staticmethod
+    def get_all_subelements_with_tag(element: etree._Element, tag: str) -> []:
+        if element is None:
+            return []
+        if tag is None:
+            return []
+
+        subelements = []
+        for c in element:
+            if c.tag == tag:
+                subelements.append(c)
+        return subelements
+
 
     @staticmethod
     def subelements_to_dict(element: etree._Element) -> dict:
@@ -74,23 +99,31 @@ class ElementHelper:
 
         return subelements[key]
 
-
+    @staticmethod
+    def get_element_attribute_value(element, attribute: str):
+        if element is None:
+            return None
+        if attribute is None:
+            return None
+        if attribute not in element.attrib:
+            return None
+        return element.attrib[attribute]
 
 
     @staticmethod
     def check_element_attribute_has_value(element: etree._Element, attribute: str, value: str) -> bool:
-        # params not set
         if (element is None) | (attribute is None) | (value is None):
             return False
 
-        # attribute not available
-        if attribute not in element.attrib:
+        attrib_value = ElementHelper.get_element_attribute_value(element, attribute)
+        if attrib_value is None:
             return False
+        return attrib_value == value
 
-        return element.attrib[attribute] == value
+
 
     @staticmethod
-    def get_index_of_element_attribute_with_value(parent, attribute: str, value: str) -> int:
+    def get_index_of_first_element_by_attribute_with_value(parent, attribute: str, value: str) -> int:
         if (parent is None) | (attribute is None) | (value is None):
             return -1
 
@@ -144,6 +177,7 @@ class ElementHelper:
             element.attrib[attribute_tag] = value
         return element
 
+
 class MindmapHelper:
     @staticmethod
     def add_necessary_attributes_to_node(element: etree._Element):
@@ -158,7 +192,7 @@ class MindmapHelper:
         if value is None:
             return None
 
-        index = ElementHelper.get_index_of_element_attribute_with_value(element, Attributes.text, value)
+        index = ElementHelper.get_index_of_first_element_by_attribute_with_value(element, Attributes.text, value)
         if index < 0:
             return None
         return element[index]
@@ -174,8 +208,6 @@ class MindmapHelper:
         MindmapHelper.add_necessary_attributes_to_node(new_subnode)
         element.append(new_subnode)
         return MindmapHelper.get_subnode_by_text_attrib(element, text)
-
-
 
 
 class OsHelper:
