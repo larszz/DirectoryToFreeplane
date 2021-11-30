@@ -9,7 +9,8 @@ from io import StringIO
 
 import names
 import values
-from helpers import Helpers
+from helpers import ElementHelper, MindmapHelper
+
 from names import Attributes
 from setting import Setting
 
@@ -41,10 +42,6 @@ def xml_test():
     testpath = os.path.normpath(testpath)
     dirlist = testpath.split(os.sep)
 
-    print(str(dirlist))
-
-    print(str(root.tag))
-    print(str(root.keys()))
     rec_add_dirs_from_path_and_get_element(root, dirlist)
 
     result_xml = str(etree.tostring(root, encoding='unicode', pretty_print=True))
@@ -112,17 +109,21 @@ def rec_add_dirs_from_path_and_get_element(element, path: []):
 
     cur = str(path[0])
 
-    current_folder_xml_index = Helpers.ElementHelper.get_index_of_element_attribute_with_value(element,
+    current_folder_xml_index = ElementHelper.get_index_of_element_attribute_with_value(element,
                                                                                                names.Attributes.text,
                                                                                                cur)
 
     # if current checked folder does not exist as an element, add the element
     if current_folder_xml_index < 0:
-        element.append(etree.Element(names.Elements.node, attrib={Attributes.text: cur}))
-        current_folder_xml_index = Helpers.ElementHelper.get_index_of_element_attribute_with_value(element,
+
+        new_element = etree.Element(names.Elements.node, attrib={Attributes.text: cur})
+        MindmapHelper.add_necessary_attributes_to_node(new_element)
+        element.append(new_element)
+        current_folder_xml_index = ElementHelper.get_index_of_element_attribute_with_value(element,
                                                                                                    names.Attributes.text,
                                                                                                    cur)
-
+    else:
+        existing_element = None
     # walk to next level
     path.pop(0)
     return rec_add_dirs_from_path_and_get_element(element[current_folder_xml_index], path)
@@ -167,12 +168,12 @@ def write_paths_to_xml(setting: Setting, file_paths: []):
         return
 
     # logic
-    root = Helpers.ElementHelper.get_root_element_from_file_path(setting.output_file_path)
+    root = ElementHelper.get_root_element_from_file_path(setting.output_file_path)
     if root is None:
         print(f"ERROR: Root element not found!")
         return
 
-    base_node = Helpers.ElementHelper.get_first_subelement_with_tag(root, names.Elements.node)
+    base_node = ElementHelper.get_first_subelement_with_tag(root, names.Elements.node)
 
     # TODO: change after tests
     setting.output_file_path = r"C:\Users\larsz\Projects\DirectoryToFreeplane\TestFiles\MindMap01_result.mm"
@@ -180,7 +181,7 @@ def write_paths_to_xml(setting: Setting, file_paths: []):
     for p in file_paths:
         file_path_as_list = get_path_as_directory_list(p)
         element = rec_add_dirs_from_path_and_get_element(base_node, file_path_as_list)
-        Helpers.MindmapHelper.add_necessary_attributes_to_node(element)
+        MindmapHelper.add_necessary_attributes_to_node(element)
 
 
     etree.indent(base_node)

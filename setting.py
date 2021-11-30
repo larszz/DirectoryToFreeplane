@@ -1,6 +1,6 @@
 from lxml import etree
 
-from helpers import Helpers
+from helpers import ElementHelper, StringHelper, OsHelper
 from names import SettingNames
 from values import Values
 import os
@@ -27,29 +27,29 @@ class Setting:
         if settings_root is None:
             return
 
-        setting_children = Helpers.ElementHelper.subelements_to_dict(settings_root)
+        setting_children = ElementHelper.subelements_to_dict(settings_root)
 
         # search for specific settings
         # input directory path (-> basepath)
-        input_dir_path_element = Helpers.ElementHelper.\
+        input_dir_path_element = ElementHelper.\
             get_element_from_subelement_dict(setting_children, SettingNames.Elements.inputdirpath)
         # if input directory is available and valid, it's used as a setting
         if (input_dir_path_element is not None) \
                 & (input_dir_path_element.text is not None) \
                 & (input_dir_path_element.text != ''):
-            self.input_directory_path = str(Helpers.StringHelper.remove_quotes_from_string(input_dir_path_element.text).strip())
+            self.input_directory_path = str(StringHelper.remove_quotes_from_string(input_dir_path_element.text).strip())
         else:
             # else current directory is used
             self.input_directory_path = os.path.dirname(os.path.abspath(path))
 
         # output path
-        output_path_element = Helpers.ElementHelper. \
+        output_path_element = ElementHelper. \
             get_element_from_subelement_dict(setting_children, SettingNames.Elements.outputfilepath)
         if output_path_element is not None:
-            self.output_file_path = Helpers.StringHelper.remove_quotes_from_string(output_path_element.text)
+            self.output_file_path = StringHelper.remove_quotes_from_string(output_path_element.text)
 
         # exclude
-        exclude_element = Helpers.ElementHelper. \
+        exclude_element = ElementHelper. \
             get_element_from_subelement_dict(setting_children, SettingNames.Elements.exclude)
         if (exclude_element is not None):
             # add paths from InnerText, seperated by a static set seperator
@@ -60,9 +60,9 @@ class Setting:
                     # is filetype (let's see if this works...)
                     x_stripped = x.strip()
                     if (x_stripped.startswith('.')) & (os.sep not in x_stripped):
-                        self.excluded_filetypes.append(Helpers.StringHelper.remove_quotes_from_string(x_stripped))
+                        self.excluded_filetypes.append(StringHelper.remove_quotes_from_string(x_stripped))
                     else:
-                        self.excluded_paths.append(Helpers.StringHelper.remove_quotes_from_string(x_stripped))
+                        self.excluded_paths.append(StringHelper.remove_quotes_from_string(x_stripped))
 
             # add all found path sub elements
             for exc_element in exclude_element:
@@ -90,7 +90,7 @@ class Setting:
     Checks whether the set paths are pointing to valid locations
     """
     def check_setting_path_valid(self) -> bool:
-        if Helpers.OsHelper.file_exist(self.output_file_path):
+        if OsHelper.file_exist(self.output_file_path):
             return True
         return False
 
