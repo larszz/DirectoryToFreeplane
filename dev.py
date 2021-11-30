@@ -109,24 +109,15 @@ def rec_add_dirs_from_path_and_get_element(element, path: []):
 
     cur = str(path[0])
 
-    current_folder_xml_index = ElementHelper.get_index_of_element_attribute_with_value(element,
-                                                                                               names.Attributes.text,
-                                                                                               cur)
+    current_node = MindmapHelper.get_subnode_by_text_attrib(element, cur)
 
-    # if current checked folder does not exist as an element, add the element
-    if current_folder_xml_index < 0:
+    # if current checked folder does not exist as an sub element, add the element
+    if current_node is None:
+        current_node = MindmapHelper.add_subnode_with_text_attrib_and_return_subnode(element, cur)
 
-        new_element = etree.Element(names.Elements.node, attrib={Attributes.text: cur})
-        MindmapHelper.add_necessary_attributes_to_node(new_element)
-        element.append(new_element)
-        current_folder_xml_index = ElementHelper.get_index_of_element_attribute_with_value(element,
-                                                                                                   names.Attributes.text,
-                                                                                                   cur)
-    else:
-        existing_element = None
     # walk to next level
     path.pop(0)
-    return rec_add_dirs_from_path_and_get_element(element[current_folder_xml_index], path)
+    return rec_add_dirs_from_path_and_get_element(current_node, path)
 
 
 """
