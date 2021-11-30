@@ -148,7 +148,7 @@ class ElementHelper:
         return element.tag == value
 
     @staticmethod
-    def get_index_of_element_child_with_tag(parent, value: str) -> int:
+    def get_index_of_first_subelement_with_tag(parent, value: str) -> int:
         if (parent is None) | (value is None):
             return -1
 
@@ -178,6 +178,7 @@ class ElementHelper:
         return element
 
 
+
 class MindmapHelper:
     @staticmethod
     def add_necessary_attributes_to_node(element: etree._Element):
@@ -198,11 +199,16 @@ class MindmapHelper:
         return element[index]
 
     @staticmethod
-    def add_subnode_with_text_attrib_and_return_subnode(element, text: str):
+    def add_valid_subnode_if_missing_and_return(element, text: str, allow_duplicate: bool = False):
         if element is None:
             return None
         if text is None:
             return None
+
+        if not allow_duplicate:
+            subnode = MindmapHelper.get_subnode_by_text_attrib(element, text)
+            if subnode is not None:
+                return subnode
 
         new_subnode = etree.Element(Elements.node, attrib={Attributes.text: text})
         MindmapHelper.add_necessary_attributes_to_node(new_subnode)

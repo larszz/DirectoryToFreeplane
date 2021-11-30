@@ -1,5 +1,5 @@
 from filter import Filter
-from helpers import ElementHelper
+from helpers import ElementHelper, MindmapHelper
 from names import SettingNames
 
 
@@ -8,6 +8,14 @@ class SubnodeSetting:
     def __init__(self, subnode_texts: [], filter: Filter):
         self.subnode_texts = subnode_texts
         self.filter = filter
+
+    def add_subnodes_to_element(self, element):
+        if element is None:
+            return None
+
+        for t in self.subnode_texts:
+            MindmapHelper.add_valid_subnode_if_missing_and_return(element, t)
+        return element
 
     @staticmethod
     def get_list_of_contents_from_element_list(element_list: []) -> []:

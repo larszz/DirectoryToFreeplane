@@ -113,7 +113,7 @@ def rec_add_dirs_from_path_and_get_element(element, path: []):
 
     # if current checked folder does not exist as an sub element, add the element
     if current_node is None:
-        current_node = MindmapHelper.add_subnode_with_text_attrib_and_return_subnode(element, cur)
+        current_node = MindmapHelper.add_valid_subnode_if_missing_and_return(element, cur)
 
     # walk to next level
     path.pop(0)
