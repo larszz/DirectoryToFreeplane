@@ -10,10 +10,18 @@
             <text></text>
             <text></text>
             <filter>
-                <prefix negate="True"></prefix>
-                <suffix negate="False"></suffix>
-                <contains></contains>
-                <excludepath></excludepath>
+                <include>
+                    <prefix></prefix>
+                    <suffix></suffix>
+                    <contains></contains>
+                    <path></path>
+                </include>
+                <exclude>
+                    <prefix></prefix>
+                    <suffix></suffix>
+                    <contains></contains>
+                    <path></path>
+                </exclude>
             </filter>
         </subnodepackage>
     </subnodestoadd>
