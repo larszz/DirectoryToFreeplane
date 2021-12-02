@@ -19,6 +19,7 @@ class SettingNames:
         outputfilepath = "outputfilepath"
         inputdirpath = "inputdirpath"
         exclude = "exclude"
+        include = "include"
         path = "path"
         paths = "paths"
         filetype = "filetype"
@@ -29,7 +30,4 @@ class SettingNames:
         prefix = "prefix"
         suffix = "suffix"
         contains = "contains"
-        excludepath = "excludepath"
 
-    class Attributes:
-        negate = "negate"
