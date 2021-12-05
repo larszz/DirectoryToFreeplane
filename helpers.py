@@ -178,14 +178,7 @@ class ElementHelper:
         return element
 
 
-
 class MindmapHelper:
-    @staticmethod
-    def add_necessary_attributes_to_node(element: etree._Element):
-        ElementHelper.add_attribute_to_element_if_missing(element, Attributes.position, values.Values.MindmapValues.node_position_default)
-        ElementHelper.add_attribute_to_element_if_missing(element, Attributes.created, str(TimeHelper.get_current_unix_time_in_ms()))
-        ElementHelper.add_attribute_to_element_if_missing(element, Attributes.modified, str(TimeHelper.get_current_unix_time_in_ms()))
-
     @staticmethod
     def get_subnode_by_text_attrib(element, value: str):
         if element is None:
@@ -197,6 +190,21 @@ class MindmapHelper:
         if index < 0:
             return None
         return element[index]
+
+    @staticmethod
+    def get_text_from_subnode(element):
+        if element is None:
+            return None
+        return ElementHelper.get_element_attribute_value(element, Attributes.text)
+
+    @staticmethod
+    def add_necessary_attributes_to_node(element: etree._Element):
+        ElementHelper.add_attribute_to_element_if_missing(element, Attributes.position,
+                                                          values.Values.MindmapValues.node_position_default)
+        ElementHelper.add_attribute_to_element_if_missing(element, Attributes.created,
+                                                          str(TimeHelper.get_current_unix_time_in_ms()))
+        ElementHelper.add_attribute_to_element_if_missing(element, Attributes.modified,
+                                                          str(TimeHelper.get_current_unix_time_in_ms()))
 
     @staticmethod
     def add_valid_subnode_if_missing_and_return(element, text: str, allow_duplicate: bool = False):

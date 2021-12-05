@@ -17,6 +17,15 @@ class SubnodeSetting:
             MindmapHelper.add_valid_subnode_if_missing_and_return(element, t)
         return element
 
+    def check_node_matches_filter(self, element) -> bool:
+        if element is None:
+            return False
+        if self.filter is None:
+            return False
+
+        node_content = MindmapHelper.get_text_from_subnode(element)
+        return self.filter.check_text_is_matched(node_content)
+
     @staticmethod
     def get_list_of_contents_from_element_list(element_list: []) -> []:
         if element_list is None:

@@ -20,6 +20,13 @@ class FilterCondition:
             return None
         return FilterCondition(content, exclude)
 
+    @staticmethod
+    def check_list_of_conditions_if_a_condition_does_match(conditions: [], text: str) -> bool:
+        if conditions is None:
+            return False
+        if text is None:
+            return False
+
 
 
 
@@ -34,6 +41,67 @@ class Filter:
         self.include_suffixes = include_suffixes
         self.include_contains = include_contains
         self.include_paths = include_paths
+
+    def check_matching_excluding_rules(self, text: str) -> bool:
+        if Filter.check_matching_prefix(self.exclude_prefixes, text):
+            return True
+        if Filter.check_matching_suffix(self.exclude_suffixes, text):
+            return True
+        if Filter.check_contains(self.exclude_contains, text):
+            return True
+        return False
+    
+    def check_matching_including_rules(self, text: str) -> bool:
+        if Filter.check_matching_prefix(self.include_prefixes, text):
+            return True
+        if Filter.check_matching_suffix(self.include_suffixes, text):
+            return True
+        if Filter.check_contains(self.include_contains, text):
+            return True
+        return False
+
+    def check_text_is_matched(self, text: str, path: str = None) -> bool:
+        if self.check_matching_excluding_rules(text):
+            return False
+        return self.check_matching_including_rules(text)
+
+    @staticmethod
+    def check_matching_prefix(lst: [], text: str) -> bool:
+        if lst is None:
+            return False
+        if text is None:
+            return False
+
+        for e in lst:
+            if text.startswith(e):
+                return True
+        return False
+
+    @staticmethod
+    def check_matching_suffix(lst: [], text: str) -> bool:
+        if lst is None:
+            return False
+        if text is None:
+            return False
+
+        for e in lst:
+            if text.endswith(e):
+                return True
+        return False
+
+    @staticmethod
+    def check_contains(lst: [], text: str) -> bool:
+        if lst is None:
+            return False
+        if text is None:
+            return False
+        if len(text) <= 0:
+            return False
+
+        for e in lst:
+            if e in text:
+                return True
+        return False
 
     @staticmethod
     def get_filter_conditions_by_tag(element, filter_tag: str, exclude: bool) -> []:
