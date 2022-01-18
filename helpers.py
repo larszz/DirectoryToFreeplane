@@ -78,6 +78,13 @@ class ElementHelper:
 
 
     @staticmethod
+    def get_all_subelements(element: etree._Element):
+        if element is None:
+            return []
+        return list(element)
+
+
+    @staticmethod
     def subelements_to_dict(element: etree._Element) -> dict:
         if element is None:
             return {}
@@ -236,3 +243,17 @@ class OsHelper:
         if dirpath is None:
             return False
         return os.path.isdir(dirpath)
+
+    @staticmethod
+    def get_path_as_directory_list(path: str) -> list:
+        if (path is None) | (len(path) <= 0):
+            return []
+        return os.path.normpath(path).split(os.sep)
+
+    @staticmethod
+    def check_path_is_subpath(basepath: str, subpath: str) -> bool:
+        if basepath is None:
+            return False
+        if subpath is None:
+            return False
+        return subpath in basepath

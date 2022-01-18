@@ -12,6 +12,7 @@ import values
 from helpers import ElementHelper, MindmapHelper
 
 from names import Attributes
+from path import Path
 from setting import Setting
 
 r"""
@@ -120,15 +121,6 @@ def rec_add_dirs_from_path_and_get_element(element, path: []):
     return rec_add_dirs_from_path_and_get_element(current_node, path)
 
 
-"""
-Returns the path as a list of directories
-"""
-def get_path_as_directory_list(path: str) -> list:
-    if (path is None) | (len(path) <= 0):
-        return []
-    return os.path.normpath(path).split(os.sep)
-
-
 def write_string_to_file(filepath: str, output: str):
     if filepath is None:
         return False
@@ -170,9 +162,10 @@ def write_paths_to_xml(setting: Setting, file_paths: []):
     setting.output_file_path = r"C:\Users\larsz\Projects\DirectoryToFreeplane\TestFiles\MindMap01_result.mm"
 
     for p in file_paths:
-        file_path_as_list = get_path_as_directory_list(p)
-        element = rec_add_dirs_from_path_and_get_element(base_node, file_path_as_list)
+        element = rec_add_dirs_from_path_and_get_element(base_node, p.relative_as_list)
         MindmapHelper.add_necessary_attributes_to_node(element)
+        setting.check_subnode_settings_and_apply(element, p)
+
 
 
     etree.indent(base_node)
@@ -187,16 +180,17 @@ Get valid paths of all files under the given base path
 def get_valid_filepaths_under_basepath(setting: Setting):
     dirpath = setting.input_directory_path
 
-    file_paths = []
+    file_path_list = []
     for (dirpath, dirnames, filenames) in os.walk(dirpath):
+        if setting.check_filepath_excluded(dirpath):
+            continue
         for fn in filenames:
-            short_path = str(dirpath.removeprefix(setting.input_directory_path))
-            file_path = os.path.join(short_path, fn)
-            if setting.check_filepath_excluded(file_path):
+            file_path_abs = os.path.join(dirpath, fn)
+            if setting.check_filepath_excluded(file_path_abs):
                 continue
-            file_path = file_path.lstrip(os.path.sep)
-            file_paths.append(file_path)
-    return file_paths
+            p = Path().initialize_from_path(file_path_abs, setting.input_directory_path)
+            file_path_list.append(p)
+    return file_path_list
 
 
 if __name__ == '__main__':
@@ -224,5 +218,5 @@ if __name__ == '__main__':
     print()
 
     # get files to
-    paths = get_valid_filepaths_under_basepath(setting)
-    write_paths_to_xml(setting, paths)
+    path_list = get_valid_filepaths_under_basepath(setting)
+    write_paths_to_xml(setting, path_list)

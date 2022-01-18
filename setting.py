@@ -3,6 +3,7 @@ from lxml import etree
 from filter import Filter
 from helpers import ElementHelper, StringHelper, OsHelper
 from names import SettingNames
+from path import Path
 from values import Values
 from subnodesetting import SubnodeSetting
 import os
@@ -15,6 +16,7 @@ class Setting:
         self.input_directory_path = None
         self.excluded_paths = []
         self.excluded_filetypes = []
+        self.subnode_setting_list = []
 
 
     def get_subnode_settings_from_setting_node(self, element) -> []:
@@ -32,6 +34,7 @@ class Setting:
             sn_setting = self.get_subnode_setting_from_subnode_package(snp)
             if sn_setting is not None:
                 subnode_settings.append(sn_setting)
+        return subnode_settings
 
 
 
@@ -92,9 +95,18 @@ class Setting:
                     self.excluded_filetypes.append(str(exc_element.text).strip())
 
         subnode_setting_node = ElementHelper.get_first_subelement_with_tag(settings_root, SettingNames.Elements.subnodestoadd)
-        subnode_setting_list = SubnodeSetting.get_multiple_subnode_settings_from_subnodestoadd(subnode_setting_node)
+        self.subnode_setting_list = SubnodeSetting.get_multiple_subnode_settings_from_subnodestoadd(subnode_setting_node)
 
         return self
+
+
+    def check_subnode_settings_and_apply(self, element: etree._Element, path: Path):
+        if element is None:
+            return
+
+        for sns in self.subnode_setting_list:
+            if sns.check_node_matches_filter(element, path):
+                sns.add_subnodes_to_element(element)
 
     """
     Returns if the path is excluded in setting
