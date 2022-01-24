@@ -207,8 +207,8 @@ if __name__ == '__main__':
     https://realpython.com/command-line-interfaces-python-argparse/
     """
     arg_parser = argparse.ArgumentParser(description='Generate a MindMap as an overview for the contents of a folder')
-    arg_parser.add_argument('-s', '--settingspath', help='Path to settings file', default='.', )
-    arg_parser.add_argument('-o', '--outputpath', help='Output path for the mindmap file to use', default='.', )
+    arg_parser.add_argument('-s', '--settingspath', help='Path to settings file', default=r'setting_dir_test/dir_2/setting.xml', )
+    arg_parser.add_argument('-o', '--outputpath', help='Output path for the mindmap file to use', default=r'TestFiles/TestMap01.mm', )
     arg_parser.add_argument('-i', '--interactive', help='Allows interactive execution (TO IMPLEMENT)', action='store_true')
     arg_parser.print_help()
     arguments = arg_parser.parse_args()
