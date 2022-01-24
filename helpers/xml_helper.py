@@ -49,6 +49,16 @@ class XmlHelper:
             return None
         return element.get(key)
 
+    @staticmethod
+    def get_value_of_element_or_default(element: etree._Element, default: None):
+        if element is None:
+            return default
+        if element.text is None:
+            return default
+        if element.text == '':
+            return default
+        return element.text
+
 
 if __name__ == '__main__':
     path = r'C:\Users\larsz\Projects\DirectoryToFreeplane\testdir\test.xml'
