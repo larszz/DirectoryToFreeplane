@@ -1,5 +1,5 @@
 from filter import Filter
-from helpers import ElementHelper, MindmapHelper
+from helpers.helpers import ElementHelper, MindmapHelper
 from names import SettingNames
 
 

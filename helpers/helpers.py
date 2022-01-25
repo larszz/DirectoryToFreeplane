@@ -22,6 +22,8 @@ class BoolHelper:
 class StringHelper:
     @staticmethod
     def remove_quotes_from_string(text: str) -> str:
+        if text is None:
+            return ''
         text = text.lstrip("'").rstrip("'")
         text = text.lstrip('"').rstrip('"')
         return text

@@ -1,7 +1,10 @@
 from lxml import etree
 
+import subnodesetting
 from filter import Filter
-from helpers import ElementHelper, StringHelper, OsHelper
+from helpers.helpers import StringHelper, OsHelper
+from helpers.xml_helper import XmlHelper as xh
+
 from names import SettingNames
 from values import Values
 from subnodesetting import SubnodeSetting
@@ -17,81 +20,95 @@ class Setting:
         self.excluded_filetypes = []
 
 
-    def get_subnode_settings_from_setting_node(self, element) -> []:
-        if element is None:
+    def get_subnode_settings_from_root_node(self, setting_element) -> []:
+        if setting_element is None:
             return []
 
-        # get subnodestoadd
-        subnodes_to_add = ElementHelper.get_first_subelement_with_tag(element, SettingNames.Elements.subnodestoadd)
-        if subnodes_to_add is None:
-            return []
-
+        # get subnodes to add
         subnode_settings = []
-        subnodepackage_list = ElementHelper.get_all_subelements_with_tag(subnodes_to_add, SettingNames.Elements.subnodepackage)
+        subnodes_to_add = xh.get_first_subelement_with_tag(setting_element, SettingNames.Elements.subnodestoadd)
+        if subnodes_to_add is None:
+            return subnode_settings
+
+        subnodepackage_list = xh.get_subelements_with_tag(subnodes_to_add, SettingNames.Elements.subnodepackage)
         for snp in subnodepackage_list:
-            sn_setting = self.get_subnode_setting_from_subnode_package(snp)
+            sn_setting = subnodesetting.SubnodeSetting()
+            sn_setting.get_subnode_setting_from_subnode_package(snp)
             if sn_setting is not None:
                 subnode_settings.append(sn_setting)
 
 
+    def init_exclude_settings_from_root_element(self, root_element):
+        if root_element is None:
+            return None
 
-    def parse_from_xml_config_file(self, path: str):
-        if path is None:
+        exclude_element = xh.get_first_subelement_with_tag(root_element, SettingNames.Elements.exclude)
+        if exclude_element is None:
             return
+
+        # add paths from InnerText, seperated by a static set seperator
+        exclude_value = xh.get_value_of_element_or_default(exclude_element).strip()
+        if (exclude_value is not None) and (exclude_value != ''):
+            exclude_rules = (x.strip() for x in exclude_value.split(Values.SettingValues.element_seperator))
+            for x in exclude_rules:
+                # is filetype (let's see if this works...)
+                x_stripped = x.strip()
+                if (x_stripped.startswith('.')) & (os.sep not in x_stripped):
+                    self.excluded_filetypes.append(StringHelper.remove_quotes_from_string(x_stripped))
+                else:
+                    self.excluded_paths.append(StringHelper.remove_quotes_from_string(x_stripped))
+
+        # add all found path sub elements
+        for rule in xh.get_subelements_with_tag(exclude_element, SettingNames.Elements.path):
+            rule_value = xh.get_value_of_element_or_default(rule)
+            if rule_value is not None:
+                self.excluded_paths.append(rule_value.strip())
+
+        # add excluded filetypes
+        for rule in xh.get_subelements_with_tag(exclude_element, SettingNames.Elements.filetype):
+            rule_value = xh.get_value_of_element_or_default(rule)
+            if rule_value is not None:
+                self.excluded_filetypes.append(rule_value.strip())
+
+
+    def init_from_xml_config_file(self, path: str):
+        if path is None:
+            return self
 
         settings_tree = etree.parse(path)
         if settings_tree is None:
-            return
+            return self
 
         settings_root = settings_tree.getroot()
         if settings_root is None:
-            return
+            return self
+        return self.init_from_xml_element(settings_root)
 
-        setting_children = ElementHelper.subelements_to_dict(settings_root)
+    def init_from_xml_element(self, root_element: etree._Element, default_path = None):
+        if root_element is None:
+            return self
+        if default_path is None:
+            default_path = os.path.abspath('.')
 
-        # search for specific settings
         # input directory path (-> basepath)
-        input_dir_path_element = ElementHelper.\
-            get_element_from_subelement_dict(setting_children, SettingNames.Elements.inputdirpath)
-        # if input directory is available and valid, it's used as a setting
-        if (input_dir_path_element is not None) \
-                & (input_dir_path_element.text is not None) \
-                & (input_dir_path_element.text != ''):
+        input_dir_path_element = xh.get_first_subelement_with_tag(root_element, SettingNames.Elements.inputdirpath)
+        input_dir_path_value = xh.get_value_of_element_or_default(input_dir_path_element)
+
+        # if input directory is available and valid, it's used as a setting; else current directory is used
+        if input_dir_path_value is not None:
             self.input_directory_path = str(StringHelper.remove_quotes_from_string(input_dir_path_element.text).strip())
         else:
-            # else current directory is used
-            self.input_directory_path = os.path.dirname(os.path.abspath(path))
+            self.input_directory_path = default_path
 
         # output path
-        output_path_element = ElementHelper. \
-            get_element_from_subelement_dict(setting_children, SettingNames.Elements.outputfilepath)
-        if output_path_element is not None:
-            self.output_file_path = StringHelper.remove_quotes_from_string(output_path_element.text)
+        output_path_value = xh.get_value_of_first_subelement_with_tag_or_default(root_element, SettingNames.Elements.outputfilepath)
+        if output_path_value is not None:
+            self.output_file_path = StringHelper.remove_quotes_from_string(output_path_value)
 
         # exclude
-        exclude_element = ElementHelper. \
-            get_element_from_subelement_dict(setting_children, SettingNames.Elements.exclude)
-        if (exclude_element is not None):
-            # add paths from InnerText, seperated by a static set seperator
-            if (exclude_element.text is not None) & (str(exclude_element.text).strip() != ''):
-                self.excluded_paths += [x.strip() for x in str(exclude_element.text). \
-                    split(Values.SettingValues.element_seperator)]
-                for x in str(exclude_element.text).split(Values.SettingValues.element_seperator):
-                    # is filetype (let's see if this works...)
-                    x_stripped = x.strip()
-                    if (x_stripped.startswith('.')) & (os.sep not in x_stripped):
-                        self.excluded_filetypes.append(StringHelper.remove_quotes_from_string(x_stripped))
-                    else:
-                        self.excluded_paths.append(StringHelper.remove_quotes_from_string(x_stripped))
+        self.init_exclude_settings_from_root_element(root_element)
 
-            # add all found path sub elements
-            for exc_element in exclude_element:
-                if exc_element.tag == SettingNames.Elements.path:
-                    self.excluded_paths.append(str(exc_element.text).strip())
-                if exc_element.tag == SettingNames.Elements.filetype:
-                    self.excluded_filetypes.append(str(exc_element.text).strip())
-
-        subnode_setting_node = ElementHelper.get_first_subelement_with_tag(settings_root, SettingNames.Elements.subnodestoadd)
+        subnode_setting_node = xh.get_first_subelement_with_tag(root_element, SettingNames.Elements.subnodestoadd)
         subnode_setting_list = SubnodeSetting.get_multiple_subnode_settings_from_subnodestoadd(subnode_setting_node)
 
         return self

@@ -50,14 +50,27 @@ class XmlHelper:
         return element.get(key)
 
     @staticmethod
-    def get_value_of_element_or_default(element: etree._Element, default: None):
+    def get_value_of_element_or_default(element: etree._Element, default=None, allow_empty=False):
         if element is None:
             return default
         if element.text is None:
             return default
-        if element.text == '':
+        if not allow_empty and element.text == '':
             return default
         return element.text
+
+    @staticmethod
+    def get_value_of_first_subelement_with_tag_or_default(root_element: etree._Element, tag: str, default=None):
+        if root_element is None:
+            return default
+        if tag is None:
+            return default
+        element = XmlHelper.get_first_subelement_with_tag(root_element, tag)
+        if element is None:
+            return default
+
+        return XmlHelper.get_value_of_element_or_default(element, default)
+
 
 
 if __name__ == '__main__':

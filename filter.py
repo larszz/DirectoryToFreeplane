@@ -1,4 +1,4 @@
-from helpers import ElementHelper, BoolHelper
+from helpers.helpers import ElementHelper, BoolHelper
 from names import SettingNames
 
 

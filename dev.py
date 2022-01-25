@@ -9,7 +9,7 @@ from io import StringIO
 
 import names
 import values
-from helpers import ElementHelper, MindmapHelper
+from helpers.helpers import ElementHelper, MindmapHelper
 
 from names import Attributes
 from setting import Setting
@@ -217,7 +217,7 @@ if __name__ == '__main__':
     # settings path
     settings_path = arguments.settingspath.strip("'")
 
-    setting = Setting().parse_from_xml_config_file(settings_path)
+    setting = Setting().init_from_xml_config_file(settings_path)
     if not setting.check_setting_path_valid():
         print(f"Setting path not valid!")
         exit(1)
